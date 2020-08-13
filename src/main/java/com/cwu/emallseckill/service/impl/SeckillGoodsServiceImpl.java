@@ -20,7 +20,14 @@ public class SeckillGoodsServiceImpl implements ISeckillGoodsService {
     }
 
     @Override
-    public GoodsBo getSeckillGoodsBoByGoodsId(Long id) {
+    public GoodsBo getSeckillGoodsBoByGoodsId(long id) {
         return this.goodsMapper.getSeckillGoodsBoByGoodsId(id);
     }
+
+    @Override
+    public int reduceStock(long goodsId) {
+
+        return 0;
+    }
+
 }

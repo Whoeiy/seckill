@@ -3,6 +3,7 @@ package com.cwu.emallseckill.controller;
 
 import com.cwu.emallseckill.bo.GoodsBo;
 import com.cwu.emallseckill.consts.Const;
+import com.cwu.emallseckill.entity.OrderInfo;
 import com.cwu.emallseckill.entity.SeckillOrder;
 import com.cwu.emallseckill.entity.User;
 import com.cwu.emallseckill.redis.GoodsKey;
@@ -55,7 +56,7 @@ public class SeckillController implements InitializingBean {
         }
     }
 
-    /** 银浪秒杀路径后的请求地址 **/
+    /** 隐藏秒杀路径后的请求地址 **/
     @RequestMapping(value = "/{path}/seckill", method = RequestMethod.POST)
     @ResponseBody
     public Result<Integer> list(Model mode,
@@ -92,10 +93,23 @@ public class SeckillController implements InitializingBean {
         }
 
         // 还未下单，减库存，下订单，写入秒杀订单
+        GoodsBo goodsBo = this.seckillGoodsService.getSeckillGoodsBoByGoodsId(goodsId);
+        OrderInfo orderInfo = this.seckillOrderService.insert(user, goodsBo);
 
+        return Result.success(0);
+    }
 
-        return null;
+    /** 生成随机路径，用于隐藏秒杀路径使用 **/
+    @RequestMapping("/path")
+    @ResponseBody
+    public Result<String> getSeckillPath(@RequestParam("goodsId") long goodsId, HttpServletRequest request){
+        String loginToken = CookieUtil.readLoginToken(request);
+        User user = this.redisService.get(UserKey.getByName, loginToken, User.class);
+        if(ObjectUtils.isEmpty(user)){
+            return Result.error(CodeMsg.USER_NO_LOGIN);
+        }
 
-
+        String path = this.seckillOrderService.createSeckillPath(user, goodsId);
+        return Result.success(path);
     }
 }

@@ -113,6 +113,14 @@
         WHERE id = #{id, jdbcType=BIGINT}
     </update>
 
+    <!--  更新商品数量  -->
+    <update id="updateStock" parameterType="java.lang.Long" >
+        UPDATE seckill_goods
+        SET
+            stock_count = stock_count - 1
+        WHERE goods_id = #{goodsId}
+    </update>
+
     <!--  根据id查询  -->
     <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="resultMapWithBLOBS">
         SELECT

@@ -24,9 +24,17 @@ public class CookieUtil {
     /** 从cookie中读取token **/
     public static String readLoginToken(HttpServletRequest request){
         Cookie[] cookies = request.getCookies();
+//        if(cookies != null){
+//            for(Cookie cookie : cookies){
+//                if(StringUtils.equals(cookie.getName(), COOKIE_NAME)){
+//                    return cookie.getValue();
+//                }
+//            }
+//        }
+
         if(cookies != null){
             for(Cookie cookie : cookies){
-                if(StringUtils.equals(cookie.getName(), COOKIE_NAME)){
+                if(StringUtils.equals(cookie.getName(), "JSESSIONID")){
                     return cookie.getValue();
                 }
             }

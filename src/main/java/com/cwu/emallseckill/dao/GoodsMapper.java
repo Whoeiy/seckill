@@ -29,4 +29,7 @@ public interface GoodsMapper {
     /** 查询秒杀商品详情 **/
     GoodsBo getSeckillGoodsBoByGoodsId(Long id);
 
+    /** 减少商品库存数量 **/
+    int updateStock(long goodsId);
+
 }

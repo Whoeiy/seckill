@@ -1,9 +1,12 @@
 package com.cwu.emallseckill;
 
 import com.cwu.emallseckill.dao.GoodsMapper;
+import com.cwu.emallseckill.dao.OrderInfoMapper;
 import com.cwu.emallseckill.dao.SeckillOrderMapper;
 import com.cwu.emallseckill.dao.UserMapper;
 import com.cwu.emallseckill.entity.Goods;
+import com.cwu.emallseckill.entity.OrderInfo;
+import com.cwu.emallseckill.entity.SeckillOrder;
 import com.cwu.emallseckill.param.LoginParam;
 import com.cwu.emallseckill.result.Result;
 import com.cwu.emallseckill.service.IUserService;
@@ -29,11 +32,34 @@ class EmallSeckillApplicationTests {
     @Autowired
     private SeckillOrderMapper seckillOrderMapper;
 
+    @Autowired
+    private OrderInfoMapper orderInfoMapper;
+
 //    @Autowired
 //    private IUserService userServiceImpl;
 
     @Test
     void contextLoads() {
+    }
+
+    @Test
+    void testInsertSelective(){
+        SeckillOrder order = new SeckillOrder();
+        order.setUserId(1410080408L);
+        order.setGoodsId(1L);
+        order.setOrderId(2L);
+        this.seckillOrderMapper.insertSelective(order);
+    }
+
+    @Test
+    void testQueryOrderInfo(){
+        System.out.println(this.orderInfoMapper.selectByPrimaryKey(48L));
+    }
+
+    @Test
+    void testOrderInsert(){
+        OrderInfo orderInfo = new OrderInfo();
+        this.orderInfoMapper.insert(orderInfo);
     }
 
     @Test
@@ -44,6 +70,11 @@ class EmallSeckillApplicationTests {
     @Test
     void testSeckillGoodsBo(){
         System.out.println(this.goodsMapper.getSeckillGoodsBoByGoodsId(1L));
+    }
+
+    @Test
+    void testUpdateStock(){
+        System.out.println(this.goodsMapper.updateStock(1L));
     }
 
     @Test
