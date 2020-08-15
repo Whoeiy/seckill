@@ -30,30 +30,10 @@ public class LoginController {
     private IUserService userService;
 
     /** 联调前端前 **/
-    @RequestMapping("/login")
-    @ResponseBody
-    public Result<User> login(@Valid LoginParam param, HttpServletRequest request, HttpServletResponse response){
-        Result<User> login = this.userService.login(param);
-        if(login.isSuccess()){
-            CookieUtil.writeLoginToken(response, request.getSession().getId());
-
-            /** 放入redis中 **/
-            this.redisService.set(UserKey.getByName, request.getSession().getId(), login.getData(), Const.RedisCacheExtime.REDIS_SESSION_EXTIME);
-        }
-
-        return login;
-    }
-
-    /** 联调前端后 **/
 //    @RequestMapping("/login")
 //    @ResponseBody
-//    public Result<User> login(@RequestBody User user, HttpServletRequest request, HttpServletResponse response){
-//
-//        LoginParam loginParam = new LoginParam();
-//        loginParam.setMobile(user.getUserName());
-//        loginParam.setPassword(user.getPassword());
-//
-//        Result<User> login = this.userService.login(loginParam);
+//    public Result<User> login(@Valid LoginParam param, HttpServletRequest request, HttpServletResponse response){
+//        Result<User> login = this.userService.login(param);
 //        if(login.isSuccess()){
 //            CookieUtil.writeLoginToken(response, request.getSession().getId());
 //
@@ -63,6 +43,26 @@ public class LoginController {
 //
 //        return login;
 //    }
+
+    /** 联调前端后 **/
+    @RequestMapping("/login")
+    @ResponseBody
+    public Result<User> login(@RequestBody User user, HttpServletRequest request, HttpServletResponse response){
+
+        LoginParam loginParam = new LoginParam();
+        loginParam.setMobile(user.getUserName());
+        loginParam.setPassword(user.getPassword());
+
+        Result<User> login = this.userService.login(loginParam);
+        if(login.isSuccess()){
+            CookieUtil.writeLoginToken(response, request.getSession().getId());
+
+            /** 放入redis中 **/
+            this.redisService.set(UserKey.getByName, request.getSession().getId(), login.getData(), Const.RedisCacheExtime.REDIS_SESSION_EXTIME);
+        }
+
+        return login;
+    }
 
     @RequestMapping("/logout")
     @ResponseBody

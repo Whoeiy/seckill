@@ -1,4 +1,4 @@
-package com.cwu.emallseckill.annotation;
+package com.cwu.emallseckill.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

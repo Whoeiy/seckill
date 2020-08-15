@@ -1,6 +1,7 @@
 package com.cwu.emallseckill.controller;
 
 
+import com.cwu.emallseckill.annotations.AccessLimit;
 import com.cwu.emallseckill.bo.GoodsBo;
 import com.cwu.emallseckill.consts.Const;
 import com.cwu.emallseckill.entity.OrderInfo;
@@ -13,9 +14,9 @@ import com.cwu.emallseckill.result.CodeMsg;
 import com.cwu.emallseckill.result.Result;
 import com.cwu.emallseckill.service.ISeckillGoodsService;
 import com.cwu.emallseckill.service.ISeckillOrderService;
-import com.cwu.emallseckill.service.impl.SeckillGoodsServiceImpl;
 import com.cwu.emallseckill.util.CookieUtil;
-import com.sun.org.apache.xpath.internal.operations.Bool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
@@ -30,6 +31,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/seckill")
 public class SeckillController implements InitializingBean {
+
+    private Logger logger = LoggerFactory.getLogger(SeckillOrder.class);
 
     @Autowired
     private RedisService redisService;
@@ -59,8 +62,8 @@ public class SeckillController implements InitializingBean {
     /** 隐藏秒杀路径后的请求地址 **/
     @RequestMapping(value = "/{path}/seckill", method = RequestMethod.POST)
     @ResponseBody
-    public Result<Integer> list(Model mode,
-                                @RequestParam("goodsId") Long goodsId,
+    public Result<Integer> list(Model model,
+                                @RequestParam("goodsId") long goodsId,
                                 @PathVariable("path") String path,
                                 HttpServletRequest request){
         String loginTokin = CookieUtil.readLoginToken(request);
@@ -99,8 +102,10 @@ public class SeckillController implements InitializingBean {
         return Result.success(0);
     }
 
-    /** 生成随机路径，用于隐藏秒杀路径使用 **/
-    @RequestMapping("/path")
+    /** 生成随机路径，用于隐藏秒杀路径使用
+     * 自定义一个注解AccessLimit seconds: 请求失效时间， maxCount: 失效时间内最大请求数， needLogin: 是否需要登录 **/
+    @AccessLimit(seconds = 5, maxCount = 5, needLogin = true)
+    @RequestMapping(value = "/path", method = RequestMethod.GET)
     @ResponseBody
     public Result<String> getSeckillPath(@RequestParam("goodsId") long goodsId, HttpServletRequest request){
         String loginToken = CookieUtil.readLoginToken(request);
@@ -110,6 +115,28 @@ public class SeckillController implements InitializingBean {
         }
 
         String path = this.seckillOrderService.createSeckillPath(user, goodsId);
+        logger.info(path);
+
         return Result.success(path);
     }
+
+    /** 客户端轮询查看是否下单成功
+     * orderId: 成功
+     * -1: 秒杀失败
+     * 0: 排队中
+     **/
+
+    @RequestMapping(value = "/result", method = RequestMethod.GET)
+    @ResponseBody
+    public Result<Long> seckillResult(@RequestParam("goodsId") long goodsId, HttpServletRequest request){
+        String loginToken = CookieUtil.readLoginToken(request);
+        User user = this.redisService.get(UserKey.getByName, loginToken, User.class);
+        if(ObjectUtils.isEmpty(user)){
+            return Result.error(CodeMsg.USER_NO_LOGIN);
+        }
+
+        long result = this.seckillOrderService.getSeckillResult((long) user.getId(), goodsId);
+        return Result.success(result);
+    }
+
 }

@@ -18,7 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -38,7 +40,7 @@ public class SeckillOrderServiceImpl implements ISeckillOrderService {
 
 
     @Override
-    public boolean checkPath(User user, Long goodsId, String path) {
+    public boolean checkPath(User user, long goodsId, String path) {
         if(ObjectUtils.isEmpty(user) || StringUtils.isEmpty(path)){
             return false;
         }
@@ -52,7 +54,7 @@ public class SeckillOrderServiceImpl implements ISeckillOrderService {
     }
 
     @Override
-    public SeckillOrder getSeckillOrderByUserIdAndGoodsId(Long userId, Long goodsId) {
+    public SeckillOrder getSeckillOrderByUserIdAndGoodsId(long userId, long goodsId) {
         return this.seckillOrderMapper.selectByUserIdAndGoodsId(userId, goodsId);
     }
 
@@ -63,7 +65,7 @@ public class SeckillOrderServiceImpl implements ISeckillOrderService {
         int success = this.goodsMapper.updateStock(goodsBo.getId());
         if(success == 1){   // 更新成功
             OrderInfo orderinfo = new OrderInfo();
-            orderinfo.setCreatDate(new Date());
+            orderinfo.setCreatDate(new Date(System.currentTimeMillis()));
             orderinfo.setAddrId(0L);
             orderinfo.setGoodsCount(1);
             orderinfo.setGoodsId(goodsBo.getId());
@@ -73,16 +75,31 @@ public class SeckillOrderServiceImpl implements ISeckillOrderService {
             orderinfo.setStatus(0);
             orderinfo.setUserId((long)user.getId());
 
+//            // 添加信息到订单
+////            long orderId = this.orderInfoMapper.insertSelective(orderinfo);
+//            long orderId = this.orderInfoMapper.insert(orderinfo);
+//            SeckillOrder seckillOrder = new SeckillOrder();
+//            seckillOrder.setGoodsId(goodsBo.getId());
+////            seckillOrder.setOrderId(orderinfo.getId());
+//            seckillOrder.setOrderId(orderId);
+//            seckillOrder.setUserId((long)user.getId());
+
+            System.out.println("==orderId=="+ orderinfo.getId());
+
             // 添加信息到订单
-            long orderId = this.orderInfoMapper.insert(orderinfo);
+            long orderId = this.orderInfoMapper.insertSelective(orderinfo);
             SeckillOrder seckillOrder = new SeckillOrder();
             seckillOrder.setGoodsId(goodsBo.getId());
             seckillOrder.setOrderId(orderinfo.getId());
-            seckillOrder.setUserId((long)user.getId());
+            seckillOrder.setUserId((long) user.getId());
 
             // 秒杀表中添加数据
             this.seckillOrderMapper.insertSelective(seckillOrder);
             return orderinfo;
+
+//            // 秒杀表中添加数据
+//            this.seckillOrderMapper.insertSelective(seckillOrder);
+//            return orderinfo;
         }else{      // 秒杀商品结束
             setGoodsOver(goodsBo.getId());
             return null;
@@ -100,8 +117,55 @@ public class SeckillOrderServiceImpl implements ISeckillOrderService {
         return str;
     }
 
+    @Override
+    public long getSeckillResult(long userId, long goodsId) {
+        SeckillOrder order = getSeckillOrderByUserIdAndGoodsId(userId, goodsId);
+        if(!ObjectUtils.isEmpty(order)){    // 秒杀成功
+            return order.getOrderId();
+        }else {
+            boolean isOver = getGoodsOver(goodsId);
+            if(isOver){     // 秒杀结束
+                return -1;
+            }else {
+                return 0;
+            }
+        }
+    }
+
+    @Override
+    public List<OrderInfo> getOrderList(User user) {
+        System.out.println("===user==="+user);
+        List<SeckillOrder> seckillOrders = this.seckillOrderMapper.selectByUserId(user.getId());
+        if(ObjectUtils.isEmpty(seckillOrders) || seckillOrders.size() == 0){    // 没有秒杀订单
+            return null;
+        }
+        List<OrderInfo> orderInfos = new ArrayList<>();
+        for(SeckillOrder seckillOrder : seckillOrders){
+            System.out.println("===seckillOrder.getOrderId()==="+seckillOrder.getOrderId());
+            OrderInfo orderInfo = this.orderInfoMapper.selectByPrimaryKey(seckillOrder.getOrderId());
+            orderInfos.add(orderInfo);
+            System.out.println("===orderInfo==="+orderInfo);
+        }
+        return orderInfos;
+    }
+
+
+    /** 查看秒杀商品是否已经结束 **/
+    private boolean getGoodsOver(long goodsId) {
+        return this.redisService.exists(SeckillKey.isGoodsOver, "" + goodsId);
+    }
+
     private void setGoodsOver(Long goodsId){
         this.redisService.set(SeckillKey.isGoodsOver, "" + goodsId, true,
                 Const.RedisCacheExtime.GOODS_ID);
+    }
+
+    @Override
+    public OrderInfo getOrderInfo(long orderId) {
+        SeckillOrder seckillOrder = this.seckillOrderMapper.selectByPrimaryKey(orderId);
+        if(ObjectUtils.isEmpty(seckillOrder)){
+            return null;
+        }
+        return this.orderInfoMapper.selectByPrimaryKey(seckillOrder.getOrderId());
     }
 }

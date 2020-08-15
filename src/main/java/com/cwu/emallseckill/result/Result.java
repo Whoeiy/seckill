@@ -7,7 +7,7 @@ public class Result<T> {
     private String msg;
     private T data;
 
-    public Result(T data){
+    public Result(T data) {
         this.code = CodeMsg.SUCCESS.getCode();
         this.msg = CodeMsg.SUCCESS.getMsg();
         this.data = data;
@@ -18,34 +18,26 @@ public class Result<T> {
         this.msg = msg;
     }
 
-    private Result(CodeMsg codeMsg){
-        if(ObjectUtils.isEmpty(codeMsg)){
+    private Result(CodeMsg codeMsg) {
+        if (!ObjectUtils.isEmpty(codeMsg)) {
             this.code = codeMsg.getCode();
-            this.msg = codeMsg.getMsg();
+            this.msg= codeMsg.getMsg();
         }
     }
 
-    /** 是否成功 **/
-
-    public boolean isSuccess(){
+    /** 是否成功 */
+    public boolean isSuccess() {
         return this.code == CodeMsg.SUCCESS.getCode();
     }
 
-
-    /** 成功弄返回的消息及数据 **/
-    public static <T> Result<T> success(T data){
+    /** 成功返回的消息及数据 */
+    public static <T> Result<T> success(T data) {
         return new Result<T>(data);
     }
 
-    /** 失败返回的消息 **/
-    public static <T> Result<T> error(CodeMsg codeMsg){
+    /** 失败返回的消息 */
+    public static <T> Result<T> error(CodeMsg codeMsg) {
         return new Result<>(codeMsg);
-    }
-
-    public Result(int code, String msg, T data) {
-        this.code = code;
-        this.msg = msg;
-        this.data = data;
     }
 
     public int getCode() {

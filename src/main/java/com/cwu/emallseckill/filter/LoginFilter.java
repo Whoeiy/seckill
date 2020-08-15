@@ -42,7 +42,7 @@ public class LoginFilter implements Filter {
             }
         }
 
-        filterChain.doFilter(request, servletResponse);
+        filterChain.doFilter(request, response);
     }
 
     @Override

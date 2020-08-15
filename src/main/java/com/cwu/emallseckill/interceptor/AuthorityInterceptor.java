@@ -1,7 +1,7 @@
 package com.cwu.emallseckill.interceptor;
 
 import com.alibaba.fastjson.JSON;
-import com.cwu.emallseckill.annotation.AccessLimit;
+import com.cwu.emallseckill.annotations.AccessLimit;
 import com.cwu.emallseckill.entity.User;
 import com.cwu.emallseckill.redis.AccessKey;
 import com.cwu.emallseckill.redis.RedisService;
@@ -18,6 +18,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -103,8 +104,7 @@ public class AuthorityInterceptor implements HandlerInterceptor {
             } else if (count < maxCount) {
                 this.redisService.incr(accessKey, key);
             } else {
-//                render(response, CodeMsg.ACCESS_LIMIT_REACHED);
-                render(response, CodeMsg.REPEATE_SECKILL);
+                render(response, CodeMsg.ACCESS_LIMIT_REACHED);
                 return false;
             }
         }
@@ -114,7 +114,7 @@ public class AuthorityInterceptor implements HandlerInterceptor {
 
     private void render(HttpServletResponse response, CodeMsg codeMsg) throws Exception {
         response.setContentType("application/json;charset=UTF-8");
-        OutputStream out = response.getOutputStream();
+        OutputStream out = response.getOutputStream();  // 输出流
         String str = JSON.toJSONString(Result.error(codeMsg));
         out.write(str.getBytes("UTF-8"));
         out.flush();

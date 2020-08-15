@@ -7,4 +7,7 @@ import com.cwu.emallseckill.result.Result;
 public interface IUserService {
     /** 用户登录 **/
     Result<User> login(LoginParam loginParam);
+
+    /** 用户注册 **/
+//    long register(User user);
 }

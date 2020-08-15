@@ -1,33 +1,53 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-
-<mapper namespace="com.cwu.emallseckill.dao.SeckillOrderMapper">
+<mapper namespace="com.cwu.emallseckill.dao.SeckillOrderMapper"><!--命名空间-->
+    <!--resultMap：映射 type：对应实体 column：对应数据表里的列 property：对应java类 jdbcType：数据库里的类型-->
     <resultMap id="baseResultMap" type="com.cwu.emallseckill.entity.SeckillOrder">
         <constructor>
-            <idArg column="id" jdbcType="BIGINT" javaType="java.lang.Long" />
-            <arg column="user_id" jdbcType="BIGINT" javaType="java.lang.Long" />
-            <arg column="order_id" jdbcType="BIGINT" javaType="java.lang.Long" />
-            <arg column="goods_id" jdbcType="BIGINT" javaType="java.lang.Long" />
+            <idArg column="id" jdbcType="BIGINT" javaType="java.lang.Long"/>
+            <arg column="user_id" jdbcType="BIGINT" javaType="java.lang.Long"/>
+            <arg column="order_id" jdbcType="BIGINT" javaType="java.lang.Long"/>
+            <arg column="goods_id" jdbcType="BIGINT" javaType="java.lang.Long"/>
         </constructor>
     </resultMap>
 
-    <!--  商品基础信息的字段  -->
+
+    <!-- 基础字段，需要查询的列名，通过id号引用 -->
     <sql id="base_column_list">
-       id, user_id, order_id, goods_id
+        id,user_id,order_id,goods_id
     </sql>
 
-    <!--  根据userId和goodsId查询秒杀订单  -->
+
+    <!-- 根据用户id和商品id查询秒杀订单 -->
     <select id="selectByUserIdAndGoodsId" parameterType="java.util.Map" resultMap="baseResultMap">
         SELECT
-            <include refid="base_column_list" />
+        <include refid="base_column_list"/>
         FROM seckill_order
-        WHERE user_id = #{userId, jdbcType=BIGINT} AND goods_id = #{goodsId, jdbcType=BIGINT}
+        WHERE
+        user_id = #{userId,jdbcType=BIGINT}
+        AND goods_id = #{goodsId,jdbcType=BIGINT}
     </select>
 
-    <!--  添加  -->
-    <!--  INSERT INTO seckill_order(id, user_id, order_id, goods_id) 动态生成sql语句  -->
+    <!-- 根据用户id查询该用户下的秒杀订单 -->
+    <select id="selectByUserId" parameterType="java.lang.Long" resultMap="baseResultMap">
+        SELECT
+        <include refid="base_column_list"></include>
+        FROM seckill_order
+        WHERE user_id = #{userId,jdbcType=BIGINT}
+    </select>
+
+    <!-- 根据主键查询 -->
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="baseResultMap">
+        SELECT
+        <include refid="base_column_list"/>
+        FROM seckill_order
+        WHERE id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <!-- 添加记录到seckill_order表 -->
     <insert id="insertSelective" parameterType="com.cwu.emallseckill.entity.SeckillOrder">
+        /*动态生成sql语句 INSERT INTO seckill_order(user_id,order_id,goods_id) */
         INSERT INTO seckill_order
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">
@@ -43,19 +63,19 @@
                 goods_id,
             </if>
         </trim>
-        <!-- values() -->
-        <trim prefix="VALUES (" suffix=")" suffixOverrides="," >
+        /* VALUES() */
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
             <if test="id != null">
-                #{id, jdbcType=BIGINT},
+                #{id,jdbcType=BIGINT},
             </if>
             <if test="userId != null">
-                #{userId, jdbcType=BIGINT},
+                #{userId,jdbcType=BIGINT},
             </if>
             <if test="orderId != null">
-                #{orderId, jdbcType=BIGINT},
+                #{orderId,jdbcType=BIGINT},
             </if>
             <if test="goodsId != null">
-                #{goodsId, jdbcType=BIGINT},
+                #{goodsId,jdbcType=BIGINT},
             </if>
         </trim>
     </insert>

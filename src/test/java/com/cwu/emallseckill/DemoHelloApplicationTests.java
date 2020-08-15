@@ -42,6 +42,17 @@ class EmallSeckillApplicationTests {
     void contextLoads() {
     }
 
+
+    @Test
+    void testSeckillOrderByPrimaryKey(){
+        System.out.println(this.seckillOrderMapper.selectByPrimaryKey(51L));
+    }
+
+    @Test
+    void testSeckillOrderListByUserId(){
+        System.out.println(this.seckillOrderMapper.selectByUserId(1410080408L));
+    }
+
     @Test
     void testInsertSelective(){
         SeckillOrder order = new SeckillOrder();

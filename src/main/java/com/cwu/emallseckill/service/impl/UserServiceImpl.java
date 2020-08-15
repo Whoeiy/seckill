@@ -35,4 +35,11 @@ public class UserServiceImpl implements IUserService {
 
         return Result.success(user);
     }
+
+//    @Override
+//    public long addUser(User user) {
+//        return 0;
+//    }
+
+
 }
