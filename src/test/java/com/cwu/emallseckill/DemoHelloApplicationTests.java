@@ -8,12 +8,14 @@ import com.cwu.emallseckill.entity.Goods;
 import com.cwu.emallseckill.entity.OrderInfo;
 import com.cwu.emallseckill.entity.SeckillOrder;
 import com.cwu.emallseckill.param.LoginParam;
+import com.cwu.emallseckill.param.RegisterParam;
 import com.cwu.emallseckill.result.Result;
 import com.cwu.emallseckill.service.IUserService;
 import org.junit.jupiter.api.Test;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import sun.jvm.hotspot.asm.Register;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
@@ -35,11 +37,20 @@ class EmallSeckillApplicationTests {
     @Autowired
     private OrderInfoMapper orderInfoMapper;
 
-//    @Autowired
-//    private IUserService userServiceImpl;
+    @Autowired
+    private IUserService userServiceImpl;
 
     @Test
     void contextLoads() {
+    }
+
+    @Test
+    void testRegister(){
+        RegisterParam param = new RegisterParam();
+        param.setUserName("yy");
+        param.setMobile("13964867991");
+        param.setPassword("123456");
+        this.userServiceImpl.register(param);
     }
 
 

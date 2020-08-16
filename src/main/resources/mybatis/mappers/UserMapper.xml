@@ -31,4 +31,20 @@
         FROM user
         WHERE phone=#{phone} AND password=#{password}
     </select>
+
+    <!--  添加用户  -->
+    <insert id="addUser" parameterType="com.cwu.emallseckill.entity.User" >
+        INSERT INTO
+        user(user_name, phone, password, salt, head, login_count, register_date, last_login_date)
+        VALUES(
+            #{userName, jdbcType=VARCHAR},
+            #{phone, jdbcType=VARCHAR},
+            #{password, jdbcType=VARCHAR},
+            #{salt, jdbcType=VARCHAR},
+            #{head, jdbcType=VARCHAR},
+            #{loginCount, jdbcType=VARCHAR},
+            #{registerDate, jdbcType=TIMESTAMP},
+            #{lastLoginDate, jdbcType=TIMESTAMP}
+        )
+    </insert>
 </mapper>

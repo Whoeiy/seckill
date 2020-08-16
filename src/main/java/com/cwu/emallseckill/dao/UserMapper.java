@@ -14,5 +14,5 @@ public interface UserMapper {
     User selectByPhoneAndPassword(@Param("phone") String phone, @Param("password") String password) ;
 
     /** 添加用户 **/
-//    long addUser(User user);
+    long addUser(User user);
 }

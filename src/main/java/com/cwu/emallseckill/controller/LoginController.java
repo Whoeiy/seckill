@@ -3,6 +3,7 @@ package com.cwu.emallseckill.controller;
 import com.cwu.emallseckill.consts.Const;
 import com.cwu.emallseckill.entity.User;
 import com.cwu.emallseckill.param.LoginParam;
+import com.cwu.emallseckill.param.RegisterParam;
 import com.cwu.emallseckill.redis.RedisService;
 import com.cwu.emallseckill.redis.UserKey;
 import com.cwu.emallseckill.result.Result;
@@ -75,4 +76,12 @@ public class LoginController {
 
         return "login";
     }
+
+    @RequestMapping("/register")
+    @ResponseBody
+    public long register(@Valid RegisterParam param, HttpServletRequest request, HttpServletResponse response){
+        long result = this.userService.register(param);
+        return result;
+    }
+
 }

@@ -3,6 +3,7 @@ package com.cwu.emallseckill.service.impl;
 import com.cwu.emallseckill.dao.UserMapper;
 import com.cwu.emallseckill.entity.User;
 import com.cwu.emallseckill.param.LoginParam;
+import com.cwu.emallseckill.param.RegisterParam;
 import com.cwu.emallseckill.result.CodeMsg;
 import com.cwu.emallseckill.result.Result;
 import com.cwu.emallseckill.service.IUserService;
@@ -11,6 +12,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
+
+import java.util.Date;
 
 @Service
 public class UserServiceImpl implements IUserService {
@@ -36,10 +39,23 @@ public class UserServiceImpl implements IUserService {
         return Result.success(user);
     }
 
-//    @Override
-//    public long addUser(User user) {
-//        return 0;
-//    }
+    @Override
+    public long register(RegisterParam registerParam) {
+        User user = new User();
+        user.setUserName(registerParam.getUserName());
+        user.setPhone(registerParam.getMobile());
+        user.setHead(null);
+        user.setLoginCount(1);
+        user.setSalt("9d5b364d");
+        user.setRegisterDate(new Date());
+        user.setLastLoginDate(new Date());
+
+        String saltDB = user.getSalt();
+        String calaPass = MD5Util.inputPassToDBPass(registerParam.getPassword(), saltDB);
+        user.setPassword(calaPass);
+
+        return this.userMapper.addUser(user);
+    }
 
 
 }
